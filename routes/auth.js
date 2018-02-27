@@ -39,13 +39,14 @@ router.post('/login', (req, res, next) => {
     .catch(next);
 });
 
-router.post('/signup', (req, res, next) => {
+router.post('/business/signup', (req, res, next) => {
   if (req.session.currentUser) {
     return res.status(401).json({error: 'unauthorized'});
   }
 
   const username = req.body.username;
   const password = req.body.password;
+  const type = 'business';
 
   if (!username || !password) {
     return res.status(422).json({error: 'validation'});
@@ -62,7 +63,45 @@ router.post('/signup', (req, res, next) => {
 
       const newUser = User({
         username,
-        password: hashPass
+        password: hashPass,
+        type
+      });
+
+      return newUser.save()
+        .then(() => {
+          req.session.currentUser = newUser;
+          res.json(newUser);
+        });
+    })
+    .catch(next);
+});
+
+router.post('/signup', (req, res, next) => {
+  if (req.session.currentUser) {
+    return res.status(401).json({error: 'unauthorized'});
+  }
+
+  const username = req.body.username;
+  const password = req.body.password;
+  const type = 'user';
+
+  if (!username || !password) {
+    return res.status(422).json({error: 'validation'});
+  }
+
+  User.findOne({username}, 'username')
+    .then((userExists) => {
+      if (userExists) {
+        return res.status(422).json({error: 'username-not-unique'});
+      }
+
+      const salt = bcrypt.genSaltSync(10);
+      const hashPass = bcrypt.hashSync(password, salt);
+
+      const newUser = User({
+        username,
+        password: hashPass,
+        type
       });
 
       return newUser.save()
