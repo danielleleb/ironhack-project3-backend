@@ -47,6 +47,7 @@ router.post('/business/signup', (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   const type = 'business';
+  const address = {city: req.body.address};
 
   if (!username || !password) {
     return res.status(422).json({error: 'validation'});
@@ -64,7 +65,8 @@ router.post('/business/signup', (req, res, next) => {
       const newUser = User({
         username,
         password: hashPass,
-        type
+        type,
+        address
       });
 
       return newUser.save()

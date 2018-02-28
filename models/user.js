@@ -5,7 +5,16 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   username: String,
   password: String,
-  type: String // default
+  type: {
+    type: String,
+    default: 'user'
+  },
+  address: {
+    city: {
+      type: String,
+      required: false
+    }
+  }
 });
 
 const User = mongoose.model('User', UserSchema);
