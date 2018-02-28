@@ -27,6 +27,27 @@ router.post('/add-product', (req, res, next) => {
     });
 });
 
+router.get('/view/:searched', (req, res, next) => {
+  const searched = req.params.searched;
+  Product.find()
+    .populate('owner')
+    .exec((err, products) => {
+      if (err) { return res.json(err).status(500); }
+
+      const businesMatched = products.filter((elem) => {
+        if (!elem.owner.address.city) {
+          return false;
+        }
+        if (elem.owner.address.city.toLowerCase() === searched) {
+          return true;
+        }
+        return false;
+      });
+
+      return res.json(businesMatched);
+    });
+});
+
 router.get('/:businessId', (req, res, next) => {
   const businessId = req.params.businessId;
   Product.find({owner: businessId}, (err, products) => {
