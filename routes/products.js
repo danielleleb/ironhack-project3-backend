@@ -27,24 +27,25 @@ router.post('/add-product', (req, res, next) => {
     });
 });
 
-router.get('/view/:searched', (req, res, next) => {
-  const searched = req.params.searched;
-  Product.find()
+router.get('/view/:citySearch/:typeSearch', (req, res, next) => {
+  const citySearch = req.params.citySearch;
+  const typeSearch = req.params.typeSearch;
+  Product.find({type: typeSearch})
     .populate('owner')
     .exec((err, products) => {
       if (err) { return res.json(err).status(500); }
 
-      const businesMatched = products.filter((elem) => {
+      const businessMatched = products.filter((elem) => {
         if (!elem.owner.address.city) {
           return false;
         }
-        if (elem.owner.address.city.toLowerCase() === searched) {
+        if (elem.owner.address.city.toLowerCase() === citySearch) {
           return true;
         }
         return false;
       });
 
-      return res.json(businesMatched);
+      return res.json(businessMatched);
     });
 });
 
