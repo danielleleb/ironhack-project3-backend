@@ -27,4 +27,12 @@ router.post('/add-product', (req, res, next) => {
     });
 });
 
+router.get('/all-products', (req, res, next) => {
+  Product.find({}, (err, products) => {
+    if (err) { return res.json(err).status(500); }
+
+    return res.json(products);
+  });
+});
+
 module.exports = router;
