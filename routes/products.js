@@ -27,8 +27,9 @@ router.post('/add-product', (req, res, next) => {
     });
 });
 
-router.get('/all-products', (req, res, next) => {
-  Product.find({}, (err, products) => {
+router.get('/:businessId', (req, res, next) => {
+  const businessId = req.params.businessId;
+  Product.find({owner: businessId}, (err, products) => {
     if (err) { return res.json(err).status(500); }
 
     return res.json(products);

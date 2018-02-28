@@ -11,6 +11,7 @@ const MongoStore = require('connect-mongo')(session);
 const index = require('./routes/index');
 const auth = require('./routes/auth');
 const products = require('./routes/products');
+const user = require('./routes/users');
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/auth', auth);
 app.use('/products', products);
+app.use('/user', user);
 
 // -- error handlers
 
