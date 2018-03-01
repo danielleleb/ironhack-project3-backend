@@ -27,6 +27,18 @@ router.post('/add-product', (req, res, next) => {
     });
 });
 
+router.get('/view/:productId', (req, res, next) => {
+  //   const businessId = req.params.businessId;
+  const productId = req.params.productId;
+  Product.findById(productId)
+    .populate('owner')
+    .exec((err, product) => {
+      if (err) { return res.json(err).status(500); }
+
+      return res.json(product);
+    });
+});
+
 router.get('/view/:citySearch/:typeSearch', (req, res, next) => {
   const citySearch = req.params.citySearch;
   const typeSearch = req.params.typeSearch;
@@ -36,10 +48,7 @@ router.get('/view/:citySearch/:typeSearch', (req, res, next) => {
       if (err) { return res.json(err).status(500); }
 
       const businessMatched = products.filter((elem) => {
-        if (!elem.owner.address.city) {
-          return false;
-        }
-        if (elem.owner.address.city.toLowerCase() === citySearch) {
+        if (elem.owner.address.city && elem.owner.address.city.toLowerCase() === citySearch) {
           return true;
         }
         return false;
@@ -51,11 +60,14 @@ router.get('/view/:citySearch/:typeSearch', (req, res, next) => {
 
 router.get('/:businessId', (req, res, next) => {
   const businessId = req.params.businessId;
-  Product.find({owner: businessId}, (err, products) => {
-    if (err) { return res.json(err).status(500); }
+  Product
+    .find({owner: businessId})
+    .populate('owner')
+    .exec((err, products) => {
+      if (err) { return res.json(err).status(500); }
 
-    return res.json(products);
-  });
+      return res.json(products);
+    });
 });
 
 module.exports = router;
