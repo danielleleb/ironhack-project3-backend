@@ -28,7 +28,6 @@ router.post('/add-product', (req, res, next) => {
 });
 
 router.get('/view/:productId', (req, res, next) => {
-  //   const businessId = req.params.businessId;
   const productId = req.params.productId;
   Product.findById(productId)
     .populate('owner')
