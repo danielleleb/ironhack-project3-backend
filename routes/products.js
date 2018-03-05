@@ -32,8 +32,7 @@ router.post('/book', (req, res, next) => {
     .findByIdAndUpdate(productId, {available: false})
     .then(() => {
       res.json(productId);
-    })
-    .catch(next);
+    });
 });
 
 router.post('/return/:productId', (req, res, next) => {
@@ -62,9 +61,7 @@ router.get('/view/:productId', (req, res, next) => {
   Product.findById(productId)
     .populate('owner')
     .exec((err, product) => {
-      if (err) {
-        next(err);
-      }
+      if (err) { return res.json(err).status(500); }
 
       return res.json(product);
     });
@@ -72,9 +69,12 @@ router.get('/view/:productId', (req, res, next) => {
 
 router.get('/search', (req, res, next) => {
   const citySearch = req.query.terms;
+
   Product.find({available: true})
     .populate('owner')
-    .then((products) => {
+    .exec((err, products) => {
+      if (err) { return res.json(err).status(500); }
+
       const businessMatched = products.filter((elem) => {
         if (elem.owner.address.city && elem.owner.address.city.toLowerCase() === citySearch) {
           return true;
@@ -83,9 +83,6 @@ router.get('/search', (req, res, next) => {
       });
 
       return res.json(businessMatched);
-    })
-    .catch((err) => {
-      next(err);
     });
 });
 
@@ -95,9 +92,7 @@ router.get('/:businessId', (req, res, next) => {
     .find({owner: businessId, available: true})
     .populate('owner')
     .exec((err, products) => {
-      if (err) {
-        next(err);
-      }
+      if (err) { return res.json(err).status(500); }
 
       return res.json(products);
     });
