@@ -1,4 +1,4 @@
-require('dotenv').config();
+'use strict';
 
 const express = require('express');
 const path = require('path');
@@ -16,17 +16,19 @@ const products = require('./routes/products');
 const user = require('./routes/users');
 
 const app = express();
+require('dotenv').config();
+
+mongoose.Promise = Promise;
+console.log(process.env.MONGODB_URI);
+mongoose.connect(process.env.MONGODB_URI, {
+  keepAlive: true,
+  reconnectTries: Number.MAX_VALUE
+});
 
 app.use(cors({
   credentials: true,
   origin: [process.env.CLIENT_URL]
 }));
-
-mongoose.Promise = Promise;
-mongoose.connect(process.env.MONGODB_URI, {
-  keepAlive: true,
-  reconnectTries: Number.MAX_VALUE
-});
 
 app.use(session({
   store: new MongoStore({
