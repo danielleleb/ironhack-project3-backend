@@ -27,10 +27,13 @@ router.post('/add-product', (req, res, next) => {
     });
 });
 
-router.post('/book/:productId', (req, res, next) => {
-  const productId = req.params.productId;
-  return Product
-    .findByIdAndUpdate(productId, {'available': false});
+router.post('/book', (req, res, next) => {
+  const productId = req.body.productId;
+  Product
+    .findByIdAndUpdate(productId, {available: false})
+    .then(() => {
+      res.json(productId);
+    });
 });
 
 router.get('/view/:productId', (req, res, next) => {
@@ -47,7 +50,7 @@ router.get('/view/:productId', (req, res, next) => {
 router.get('/view/:citySearch/:typeSearch', (req, res, next) => {
   const citySearch = req.params.citySearch;
   const typeSearch = req.params.typeSearch;
-  Product.find({type: typeSearch})
+  Product.find({available: true, type: typeSearch})
     .populate('owner')
     .exec((err, products) => {
       if (err) { return res.json(err).status(500); }
