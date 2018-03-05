@@ -27,6 +27,12 @@ router.post('/add-product', (req, res, next) => {
     });
 });
 
+router.post('/book/:productId', (req, res, next) => {
+  const productId = req.params.productId;
+  return Product
+    .findByIdAndUpdate(productId, {'available': false});
+});
+
 router.get('/view/:productId', (req, res, next) => {
   const productId = req.params.productId;
   Product.findById(productId)
@@ -60,7 +66,7 @@ router.get('/view/:citySearch/:typeSearch', (req, res, next) => {
 router.get('/:businessId', (req, res, next) => {
   const businessId = req.params.businessId;
   Product
-    .find({owner: businessId})
+    .find({owner: businessId, available: true})
     .populate('owner')
     .exec((err, products) => {
       if (err) { return res.json(err).status(500); }
