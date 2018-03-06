@@ -1,7 +1,28 @@
 const express = require('express');
 const router = express.Router();
+// const multer = require('multer');
+// const upload = multer({ dest: 'public/images/' });
+// upload.single('file')
 
 const Product = require('../models/product');
+
+router.get('/', (req, res, next) => {
+  const citySearch = req.query.city;
+
+  Product.find({available: true})
+    .populate('owner')
+    .exec()
+    .then((products) => {
+      const businessMatched = products.filter((elem) => {
+        if (elem.owner.address.city && elem.owner.address.city.toLowerCase() === citySearch) {
+          return true;
+        }
+        return false;
+      });
+      res.json(businessMatched);
+    })
+    .catch(next);
+});
 
 router.post('/add-product', (req, res, next) => {
   const name = req.body.name;
@@ -9,6 +30,10 @@ router.post('/add-product', (req, res, next) => {
   const owner = req.session.currentUser._id;
   //   const available = true;
   const price = req.body.price;
+
+  // if (req.file) {
+  //   const imageUrl = `/uploads/${req.file.filename}`;
+  // }
 
   if (!type || !price) {
     return res.status(422).json({error: 'validation'});
@@ -19,6 +44,7 @@ router.post('/add-product', (req, res, next) => {
     price,
     owner,
     name
+    // imageUrl
   });
 
   return newProduct.save()
@@ -30,6 +56,27 @@ router.post('/book', (req, res, next) => {
   const productId = req.body.productId;
   Product
     .findByIdAndUpdate(productId, {available: false})
+    .then(() => {
+      res.json(productId);
+    });
+});
+
+router.post('/update', (req, res, next) => {
+  const name = req.body.name;
+  const price = req.body.price;
+  const type = req.body.type;
+  const productId = req.body.productId;
+  // const imageUrl = `/uploads/${req.file.filename}`;
+
+  Product
+    .findByIdAndUpdate(productId,
+      {
+        name: name,
+        type: type,
+        price: price
+        // imageUrl: imageUrl
+
+      })
     .then(() => {
       res.json(productId);
     });
@@ -61,28 +108,9 @@ router.get('/view/:productId', (req, res, next) => {
   Product.findById(productId)
     .populate('owner')
     .exec((err, product) => {
-      if (err) { return res.json(err).status(500); }
+      if (err) { next(err); }
 
       return res.json(product);
-    });
-});
-
-router.get('/search', (req, res, next) => {
-  const citySearch = req.query.terms;
-
-  Product.find({available: true})
-    .populate('owner')
-    .exec((err, products) => {
-      if (err) { return res.json(err).status(500); }
-
-      const businessMatched = products.filter((elem) => {
-        if (elem.owner.address.city && elem.owner.address.city.toLowerCase() === citySearch) {
-          return true;
-        }
-        return false;
-      });
-
-      return res.json(businessMatched);
     });
 });
 
