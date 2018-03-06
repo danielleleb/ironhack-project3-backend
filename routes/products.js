@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
-// const multer = require('multer');
-// const upload = multer({ dest: 'public/images/' });
-// upload.single('file')
+const upload = require('../configs/multer');
 
 const Product = require('../models/product');
 
@@ -24,16 +22,15 @@ router.get('/', (req, res, next) => {
     .catch(next);
 });
 
-router.post('/add-product', (req, res, next) => {
+router.post('/add-product', upload.single('file'), (req, res, next) => {
   const name = req.body.name;
   const type = req.body.type;
-  const owner = req.session.currentUser._id;
-  //   const available = true;
   const price = req.body.price;
-
-  // if (req.file) {
-  //   const imageUrl = `/uploads/${req.file.filename}`;
-  // }
+  const owner = req.session.currentUser._id;
+  let imageUrl;
+  if (req.file) {
+    imageUrl = `/uploads/${req.file.filename}`;
+  }
 
   if (!type || !price) {
     return res.status(422).json({error: 'validation'});
@@ -43,8 +40,8 @@ router.post('/add-product', (req, res, next) => {
     type,
     price,
     owner,
-    name
-    // imageUrl
+    name,
+    imageUrl
   });
 
   return newProduct.save()
@@ -52,6 +49,7 @@ router.post('/add-product', (req, res, next) => {
       res.json(newProduct);
     });
 });
+
 router.post('/book', (req, res, next) => {
   const productId = req.body.productId;
   Product
@@ -66,15 +64,15 @@ router.post('/update', (req, res, next) => {
   const price = req.body.price;
   const type = req.body.type;
   const productId = req.body.productId;
-  // const imageUrl = `/uploads/${req.file.filename}`;
+  const imageUrl = `/uploads/${req.file.filename}`;
 
   Product
     .findByIdAndUpdate(productId,
       {
         name: name,
         type: type,
-        price: price
-        // imageUrl: imageUrl
+        price: price,
+        imageUrl: imageUrl
 
       })
     .then(() => {
