@@ -59,13 +59,15 @@ router.post('/book', (req, res, next) => {
     });
 });
 
-router.post('/update', (req, res, next) => {
+router.post('/update', upload.single('file'), (req, res, next) => {
   const name = req.body.name;
   const price = req.body.price;
   const type = req.body.type;
-  const productId = req.body.productId;
-  const imageUrl = `/uploads/${req.file.filename}`;
-
+  const productId = req.body.id;
+  let imageUrl;
+  if (req.file) {
+    imageUrl = `/uploads/${req.file.filename}`;
+  }
   Product
     .findByIdAndUpdate(productId,
       {
