@@ -27,10 +27,6 @@ router.post('/add-product', upload.single('file'), (req, res, next) => {
   const type = req.body.type;
   const price = req.body.price;
   const owner = req.session.currentUser._id;
-  let imageUrl;
-  if (req.file) {
-    imageUrl = `/uploads/${req.file.filename}`;
-  }
 
   if (!type || !price) {
     return res.status(422).json({error: 'validation'});
@@ -40,9 +36,12 @@ router.post('/add-product', upload.single('file'), (req, res, next) => {
     type,
     price,
     owner,
-    name,
-    imageUrl
+    name
   });
+
+  if (req.file && !req.body.isDummy) {
+    newProduct.imageUrl = `/uploads/${req.file.filename}`;
+  }
 
   return newProduct.save()
     .then(() => {
@@ -64,19 +63,19 @@ router.post('/update', upload.single('file'), (req, res, next) => {
   const price = req.body.price;
   const type = req.body.type;
   const productId = req.body.id;
-  let imageUrl;
-  if (req.file) {
-    imageUrl = `/uploads/${req.file.filename}`;
+
+  const updated = {
+    name: name,
+    type: type,
+    price: price
+  };
+
+  if (req.file && !req.body.isDummy) {
+    updated.imageUrl = `/uploads/${req.file.filename}`;
   }
   Product
     .findByIdAndUpdate(productId,
-      {
-        name: name,
-        type: type,
-        price: price,
-        imageUrl: imageUrl
-
-      })
+      updated)
     .then(() => {
       res.json(productId);
     });
