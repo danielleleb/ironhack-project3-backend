@@ -44,10 +44,12 @@ router.post('/business/signup', (req, res, next) => {
     return res.status(401).json({error: 'unauthorized'});
   }
 
+  const businessName = req.body.businessName;
   const username = req.body.username;
   const password = req.body.password;
   const type = 'business';
   const address = {city: req.body.address};
+  const description = req.body.description;
 
   if (!username || !password) {
     return res.status(422).json({error: 'validation'});
@@ -63,10 +65,12 @@ router.post('/business/signup', (req, res, next) => {
       const hashPass = bcrypt.hashSync(password, salt);
 
       const newUser = User({
+        businessName,
         username,
         password: hashPass,
         type,
-        address
+        address,
+        description
       });
 
       return newUser.save()
