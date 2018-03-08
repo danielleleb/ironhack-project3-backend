@@ -96,7 +96,7 @@ router.get('/complete/:businessId', (req, res, next) => {
     .find({owner: businessId})
     .populate('owner')
     .exec((err, products) => {
-      if (err) { return res.json(err).status(500); }
+      if (err) { next(err); }
 
       return res.json(products);
     });
