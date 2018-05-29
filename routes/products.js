@@ -5,7 +5,7 @@ const upload = require('../configs/multer');
 const Product = require('../models/product');
 
 router.get('/', (req, res, next) => {
-  const citySearch = req.query.city;
+  const citySearch = req.query.city.toLowerCase();
 
   Product.find({available: true})
     .populate('owner')
